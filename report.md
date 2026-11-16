@@ -39,8 +39,10 @@ Por eso, la tabla siguiente formula cada consulta como pregunta y la vincula
 con su expresión DAX, contexto de evaluación y técnica del enunciado. Los diez
 ítems de técnicas de la consigna son criterios de cobertura para este conjunto;
 no sustituyen la formulación de las preguntas. El enunciado menciona medidas y
-funciones DAX, pero no exige explícitamente consultas tabulares `EVALUATE` de
-DAX Studio. No se debe afirmar que el proyecto incluye ese formato de consultas.
+funciones DAX, pero no exige explícitamente consultas tabulares `EVALUATE`. Como
+evidencia adicional, `dax_queries.dax` contiene diez consultas para ejecutar por
+separado en la Vista de consultas DAX de Power BI. El script está preparado,
+pero sus resultados todavía deben ejecutarse, revisarse y guardarse como evidencia.
 
 | # | Consulta (pregunta que se resuelve) | Expresión DAX que calcula la respuesta | Contexto y lectura del resultado | Técnica requerida |
 |---|---|---|---|---|
@@ -238,9 +240,11 @@ satisfacción.
 inspeccionadas en Power BI y las fórmulas revisadas fueron aceptadas por el
 modelo. Se verificaron la relación activa con `dim_date` y el marcado de esa
 dimensión como tabla de fechas; también se colocaron las medidas MTD, YTD e
-interanual en la página temporal. Antes de entregar, falta comprobar la
-segmentación visible por día y trimestre y capturar/explicar las respuestas de
-las diez consultas en el informe final. La frecuencia de palabras se calcula
+interanual en la página temporal. Las diez consultas tabulares están en
+`dax_queries.dax`, pero aún no se han ejecutado en la Vista de consultas DAX.
+Antes de entregar, falta ejecutar y revisar esos resultados, comprobar la
+segmentación visible por día y trimestre y capturar/explicar las respuestas en
+el informe final. La frecuencia de palabras se calcula
 en el ETL, no mediante DAX: cumple el análisis específico de palabras del
 Proyecto 7, pero no se cuenta como una de las diez consultas DAX generales.
 

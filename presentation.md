@@ -69,8 +69,10 @@ respuesta/interpretación**. No basta con enumerar nombres de medidas.
     (`STDEV.P`).
 
 La pregunta es la consulta; la expresión DAX y el contexto producen la
-respuesta. El enunciado enumera medidas y funciones, pero no pide
-explícitamente sentencias tabulares `EVALUATE` de DAX Studio.
+respuesta. El enunciado enumera medidas y funciones, pero no exige
+explícitamente sentencias tabulares `EVALUATE`. Como evidencia adicional, se
+preparó `dax_queries.dax` para ejecutar las diez consultas en la Vista de
+consultas DAX de Power BI; hay que verificar los resultados antes de exponerlos.
 
 ## Diapositiva 6. ANOVA: pregunta, hipótesis y supuestos
 

@@ -19,6 +19,8 @@ Yelp y las autorizaciones aplicables.
   Power BI.
 - `dax_measures.dax`: expresiones DAX utilizadas para responder las consultas
   analíticas documentadas en `report.md`.
+- `dax_queries.dax`: diez consultas tabulares `EVALUATE` para ejecutar por
+  separado en la Vista de consultas DAX de Power BI.
 - `report.md` y `presentation.md`: fuente del informe técnico y guion oral.
 - Informe Power BI [`Grupo7_Ejercicio7_Yelp.pbix`](https://github.com/HectorARiascosI/grupo-7-proyecto-7-analisis-opiniones-restaurantes/releases/latest/download/Grupo7_Ejercicio7_Yelp.pbix), disponible como archivo descargable en la sección Releases.
 - `data/processed/anova_assumptions_and_result.csv` y
@@ -141,9 +143,12 @@ concreta, acompañada por la expresión que calcula la respuesta, el contexto
 del visual/filtros y una interpretación. Las medidas son una forma de
 implementar esos cálculos, pero una medida aislada no reemplaza la pregunta ni
 la respuesta. La consigna enumera técnicas de medidas y funciones DAX; no
-especifica el formato de consultas tabulares `EVALUATE` de DAX Studio. Crear
-las medidas una por una con **Modelado > Nueva medida** y documentar las diez
-preguntas en el informe. Para demostrar la segmentación temporal, usar los
+exige explícitamente consultas tabulares `EVALUATE`. Como evidencia adicional,
+`dax_queries.dax` contiene diez bloques para ejecutar por separado en la Vista
+de consultas DAX de Power BI. El archivo por sí solo no prueba su ejecución:
+se deben revisar y guardar los resultados. Crear las medidas una por una con
+**Modelado > Nueva medida** y documentar las diez preguntas en el informe.
+Para demostrar la segmentación temporal, usar los
 campos de año, trimestre, mes y fecha/día de `dim_date`; verificar que el PBIX
 final muestre esos niveles, no solo que existan en la tabla. La medida auxiliar
 `Es Top 10 Restaurante` del PBIX selecciona el Top 10 mejor calificado con
