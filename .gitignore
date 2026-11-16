@@ -1,0 +1,10 @@
+data/raw/
+data/source/
+data/processed/*
+!data/processed/anova_assumptions_and_result.csv
+!data/processed/anova_tukey_posthoc.csv
+/Grupo7_Ejercicio7_Yelp.pbix
+__pycache__/
+*.py[cod]
+*.tmp
+*.log
