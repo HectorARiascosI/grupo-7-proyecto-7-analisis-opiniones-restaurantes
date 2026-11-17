@@ -4,6 +4,7 @@ data/processed/*
 !data/processed/anova_assumptions_and_result.csv
 !data/processed/anova_tukey_posthoc.csv
 /Grupo7_Ejercicio7_Yelp.pbix
+/deliverables/*profile*/
 __pycache__/
 *.py[cod]
 *.tmp

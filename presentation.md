@@ -1,7 +1,8 @@
 # Guion de presentación - Grupo 7, Proyecto 7
 
-Este archivo es un guion para preparar las diapositivas; aún se debe convertir
-en una presentación final e insertar capturas legibles del PBIX.
+Este guion acompaña `deliverables/presentation.pptx`. Las cinco páginas del
+PBIX fueron revisadas, las diez consultas DAX devolvieron «Correcto» y la
+versión final del PBIX está publicada en la Release `v1.0.0`.
 
 ## Diapositiva 1. Problema y objetivo
 
@@ -39,9 +40,11 @@ si `>= 0,05`, negativo si `<= -0,05` y neutral en el intervalo intermedio.
 Mostrar cómo el tablero responde a los diez puntos del ejercicio: calificación
 por restaurante; sentimiento por categoría; palabras frecuentes; tendencia
 mensual; calificación por ciudad; relación precio-satisfacción; Top 10 mejor
-calificado; frecuencia de quejas; reseñas positivas y negativas; y perfiles de
-cliente. Aclarar que la frecuencia de palabras y el sentimiento se preparan en
-el ETL, no se presentan como sustitutos de consultas DAX.
+calificado entre negocios con al menos 100 reseñas; frecuencia de quejas;
+reseñas positivas y negativas; y perfiles de cliente. Aclarar que la frecuencia
+de palabras y el sentimiento se preparan en el ETL, no se presentan como
+sustitutos de consultas DAX. El umbral reduce rankings dominados por muestras
+pequeñas.
 
 ## Diapositiva 5. Diez consultas analíticas resueltas mediante DAX
 
@@ -71,14 +74,39 @@ respuesta/interpretación**. No basta con enumerar nombres de medidas.
 La pregunta es la consulta; la expresión DAX y el contexto producen la
 respuesta. El enunciado enumera medidas y funciones, pero no exige
 explícitamente sentencias tabulares `EVALUATE`. Como evidencia adicional, se
-preparó `dax_queries.dax` para ejecutar las diez consultas en la Vista de
-consultas DAX de Power BI; hay que verificar los resultados antes de exponerlos.
+ejecutaron las diez consultas de `dax_queries.dax` en la Vista de consultas DAX
+de Power BI; las diez devolvieron «Correcto». Conservar las capturas como
+evidencia. La consulta 8 clasifica por volumen de reseñas, no por calificación.
+
+Resultados para explicar: Q1 mostró 848 ciudades; Philadelphia quedó primero
+con 687.553 reseñas. Q2 mostró promedios de 3,65, 3,81, 3,94 y 4,15 para los
+rangos 1–4, respectivamente (con 176.385 reseñas sin rango). Q3 mostró más
+votos útiles para American (New), con 265.793. Q5 devolvió 6.018 fechas, Q6
+mostró 3,83 MTD el 19/01/2022, Q7 devolvió 204 filas año-mes, Q8 clasificó
+10 negocios por volumen, Q9 devolvió 420 etiquetas y Q10 devolvió 445. Los
+resultados completos y cautelas están en `report.md`.
+
+**Agrupación de ciudades:** la consulta 1 del PBIX devuelve 848 ciudades y
+687.553 reseñas en Philadelphia. Un recálculo local que normaliza espacios y
+mayúsculas reproduce exactamente esos resultados; el total es 4.724.471
+reseñas. La diferencia inicial se debía a comparar agrupaciones de texto con
+criterios distintos, no a datos faltantes.
+
+**Cuidado con la categoría:** `category` es la primera etiqueta Yelp no
+genérica del negocio seleccionado por tener la etiqueta `Restaurants`; no
+siempre es una cocina o tipo de restaurante. En las consultas aparecen
+etiquetas como `Photographers`, `Pet Training` y `Roofing`. Describir estos
+resultados como grupos de etiquetas Yelp, no como comparación de cocinas.
+Además, en la consulta 4 algunos grupos con 7–39 reseñas muestran 100 % de
+positividad; no concluir que son los más satisfechos sin considerar el tamaño
+de muestra.
 
 ## Diapositiva 6. ANOVA: pregunta, hipótesis y supuestos
 
 - **Variable dependiente:** estrellas (`stars`, escala de 1 a 5).
-- **Factor:** categoría de restaurante (`category`).
-- **Muestra:** cinco categorías con más observaciones; 1.210.971 reseñas.
+- **Factor:** etiqueta Yelp (`category`) asociada a negocios que incluyen
+  `Restaurants`; no necesariamente una categoría de cocina.
+- **Muestra:** cinco etiquetas Yelp con más observaciones; 1.210.971 reseñas.
 - **H₀:** las cinco medias de calificación son iguales.
 - **H₁:** al menos una media es diferente.
 - **Normalidad:** Shapiro-Wilk fue significativo en los cinco grupos
@@ -93,12 +121,12 @@ varianzas motiva usar Welch como prueba principal.
 
 Welch ANOVA: `F(4; 594.272,81) = 976,19`, `p < 0,001`. Se rechaza H₀: hay
 evidencia estadística de diferencias entre las medias de al menos dos
-categorías. La prueba global no identifica qué pares difieren ni demuestra
+etiquetas Yelp. La prueba global no identifica qué pares difieren ni demuestra
 causalidad.
 
 El gráfico del PBIX muestra los promedios observados: Breakfast & Brunch 3,88;
 American (New) 3,84; Bars 3,74; Mexican 3,73; American (Traditional) 3,66.
-Son medias de los grupos seleccionados, no una comparación de todos los
+Son medias de las etiquetas seleccionadas, no una comparación de todos los
 restaurantes ni una recomendación causal.
 
 El ANOVA clásico y las comparaciones de Tukey se reportan solo como análisis
@@ -116,7 +144,8 @@ como prueba confirmatoria.
   oficiales de clientes.
 - No afirmar causalidad a partir de las diferencias estadísticas.
 
-Antes de exponer, terminar y revisar el informe PDF/Word, el PBIX, la
-presentación, el código ETL y la entrega HTML. La segmentación visible por día
-y trimestre debe verificarse en el PBIX final antes de afirmar que ambos
-niveles se muestran en el tablero.
+El PBIX final fue guardado y sustituido en la Release `v1.0.0`. El Top 10
+aplica el mínimo de 100 reseñas y la jerarquía temporal
+año-trimestre-mes-fecha quedó comprobada. Las cinco páginas del informe
+contienen los diez análisis propios del Proyecto 7. El dashboard HTML entregado
+es estático y local; no es una publicación en Power BI Service.

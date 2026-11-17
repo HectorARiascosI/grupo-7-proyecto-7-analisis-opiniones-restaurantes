@@ -82,7 +82,7 @@ def welch_anova(samples: list[list[float]]) -> tuple[float, float, float, float]
 
 
 def run_anova(reviews: pd.DataFrame, output: Path) -> None:
-    """Compare review ratings among the five principal restaurant categories."""
+    """Compare ratings across the five most frequent Yelp tags for restaurants."""
     category_groups = (
         reviews.dropna(subset=["category", "stars"])
         .groupby("category")["stars"]
@@ -205,6 +205,7 @@ def transform(raw_dir: Path, output: Path, max_reviews: int | None) -> None:
             {"restaurants", "food", "nightlife"}
         )
     ]
+    # This first remaining Yelp tag is not guaranteed to be a cuisine type.
     category_by_business = category_frame.groupby("business_id")["category"].first()
 
     analyzer = SentimentIntensityAnalyzer()

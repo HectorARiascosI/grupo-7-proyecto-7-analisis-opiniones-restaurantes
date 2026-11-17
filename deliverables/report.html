@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informe técnico - Grupo 7, ejercicio 7</title><style>
+@page{size:A4;margin:18mm 17mm}body{font:11pt/1.55 Arial,sans-serif;color:#243447;max-width:900px;margin:36px auto;padding:0 24px}
+h1,h2,h3{color:#17324d;line-height:1.25;break-after:avoid}h1{font-size:25pt;border-bottom:3px solid #148a87;padding-bottom:10px}h2{font-size:17pt;margin-top:25px}h3{font-size:13pt;margin-top:20px}
+p,li{orphans:3;widows:3}table{border-collapse:collapse;width:100%;font-size:9pt;margin:14px 0;break-inside:avoid}th,td{border:1px solid #cbd6df;padding:6px 7px;vertical-align:top}th{background:#e8f0f5;color:#17324d}tr:nth-child(even) td{background:#f7f9fb}
+pre{white-space:pre-wrap;background:#f3f6f8;border-left:3px solid #148a87;padding:10px;font-size:8.5pt;break-inside:avoid}code{font-family:Consolas,monospace;font-size:.93em}blockquote{border-left:3px solid #e3b44b;padding-left:12px;color:#53687b}a{color:#146a88;word-break:break-word}
+@media print{body{max-width:none;margin:0;padding:0}}
+</style></head><body><h1 id="informe-tecnico-grupo-7-ejercicio-7">Informe técnico - Grupo 7, ejercicio 7</h1>
+<h2 id="1-objetivo">1. Objetivo</h2>
+<p>Medir la satisfacción de clientes de restaurantes mediante calificaciones,
+sentimiento textual, categorías, ciudad, precio, tiempo y perfil de usuario.</p>
+<h2 id="2-preguntas-analiticas">2. Preguntas analíticas</h2>
+<ol>
+<li>Calificación media por restaurante.</li>
+<li>Sentimiento por categoría.</li>
+<li>Palabras clave frecuentes (obtenerlas desde <code>review_text</code> en Power Query o
+   Python, excluyendo stopwords).</li>
+<li>Tendencia mensual.</li>
+<li>Calificación por ciudad.</li>
+<li>Relación precio-satisfacción.</li>
+<li>Top 10 restaurantes.</li>
+<li>Frecuencia de quejas específicas.</li>
+<li>Reseñas positivas frente a negativas.</li>
+<li>Segmentación por perfil de usuario según el cuartil de <code>review_count</code>,
+    comparando <code>average_stars</code> y <code>fans</code>.</li>
+</ol>
+<h2 id="3-etl-y-modelo">3. ETL y modelo</h2>
+<p>El detalle reproducible está en <code>README.md</code>. El modelo estrella separa el hecho
+de reseña de negocio, usuario y fecha, y conserva la relación de categorías.</p>
+<h2 id="4-diez-consultas-analiticas-resueltas-mediante-dax">4. Diez consultas analíticas resueltas mediante DAX</h2>
+<p>Las diez preguntas de la sección 2 son los análisis propios del Proyecto 7.
+Además, el enunciado general pide un mínimo de diez <strong>consultas clave mediante
+DAX</strong>. Son dos listas relacionadas, pero no idénticas. Una consulta es la
+pregunta analítica que se quiere resolver; la expresión DAX calcula la respuesta
+y el contexto del visual (por ejemplo, ciudad, categoría o período) determina
+qué filas participan. Una medida puede implementar la respuesta, pero el nombre
+de una medida por sí solo no documenta ni demuestra una consulta completa.</p>
+<p>Por eso, la tabla siguiente formula cada consulta como pregunta y la vincula
+con su expresión DAX, contexto de evaluación y técnica del enunciado. Los diez
+ítems de técnicas de la consigna son criterios de cobertura para este conjunto;
+no sustituyen la formulación de las preguntas. El enunciado menciona medidas y
+funciones DAX, pero no exige explícitamente consultas tabulares <code>EVALUATE</code>. Como
+evidencia adicional, <code>dax_queries.dax</code> contiene diez consultas para ejecutar por
+separado en la Vista de consultas DAX de Power BI. Las diez se ejecutaron y
+devolvieron el estado «Correcto» en Power BI. Las capturas deben conservarse
+como evidencia de entrega.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Consulta (pregunta que se resuelve)</th>
+<th>Expresión DAX que calcula la respuesta</th>
+<th>Contexto y lectura del resultado</th>
+<th>Técnica requerida</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>¿Cuántas reseñas hay en el contexto seleccionado?</td>
+<td><code>Total Reseñas</code></td>
+<td>Tarjeta; segmentar por ciudad, categoría o fecha</td>
+<td><code>COUNT</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>¿Cuál es la calificación promedio por restaurante, ciudad y rango de precio?</td>
+<td><code>Calificación Promedio</code></td>
+<td>Tabla por restaurante; barras por ciudad o <code>price_range</code>. Comparar <code>price_range</code> con el promedio responde la relación precio-satisfacción</td>
+<td><code>AVERAGE</code>; relación entre dos variables en visual y DAX</td>
+</tr>
+<tr>
+<td>3</td>
+<td>¿Cuántos votos útiles recibieron las reseñas?</td>
+<td><code>Votos Útiles Totales</code></td>
+<td>Tarjeta o comparación por ciudad/categoría; indicador de interacción, no de satisfacción</td>
+<td><code>SUM</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>¿Qué porcentaje de reseñas es positivo en cada contexto?</td>
+<td><code>% Reseñas Positivas</code></td>
+<td>KPI/dona, segmentable por categoría, ciudad y fecha</td>
+<td><code>CALCULATE</code>, contexto de filtro y KPI</td>
+</tr>
+<tr>
+<td>5</td>
+<td>¿Cómo varía la calificación al segmentar por año, trimestre, mes y día?</td>
+<td><code>Calificación Promedio</code></td>
+<td>Evaluar la medida con <code>dim_date[year]</code>, <code>quarter</code>, <code>month_number</code> y <code>date</code>. Cada nivel agrupa las mismas reseñas de forma temporal distinta</td>
+<td>Segmentación temporal</td>
+</tr>
+<tr>
+<td>6</td>
+<td>¿Cuál es la calificación promedio acumulada en el mes hasta la fecha seleccionada?</td>
+<td><code>Calificación MTD</code></td>
+<td>Visual temporal y filtros de fecha; la tabla de fechas debe estar relacionada y marcada como tabla de fechas</td>
+<td><code>DATESMTD</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>¿Cuál es la calificación acumulada del año y cómo cambia frente al mismo período del año anterior?</td>
+<td><code>Calificación YTD</code>; <code>Cambio Interanual de Calificación</code></td>
+<td>Tabla o visual por año/período; el cambio se expresa en puntos de estrellas, no como porcentaje</td>
+<td><code>DATESYTD</code>, <code>SAMEPERIODLASTYEAR</code>, <code>VAR</code> y <code>RETURN</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>¿Qué restaurantes tienen mayor volumen de reseñas y cuál es su posición?</td>
+<td><code>Ranking por Reseñas</code></td>
+<td>Tabla por restaurante ordenada por rango. Este es un ranking de volumen, no de satisfacción</td>
+<td><code>RANKX</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>¿Cuántas reseñas contienen al menos uno de los términos de queja definidos?</td>
+<td><code>Reseñas con Quejas</code></td>
+<td>Tarjeta o comparación por categoría/ciudad; cada reseña se cuenta una sola vez en esta medida</td>
+<td><code>SEARCH</code> y filtro de filas</td>
+</tr>
+<tr>
+<td>10</td>
+<td>¿Qué tanta variabilidad presentan las calificaciones?</td>
+<td><code>Desviación de Calificaciones</code></td>
+<td>Tarjeta junto al promedio; una desviación mayor indica más dispersión de estrellas</td>
+<td><code>STDEV.P</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Alcance de <code>category</code>:</strong> el ETL selecciona negocios cuya lista de etiquetas
+incluye <code>Restaurants</code>, elimina las etiquetas genéricas <code>Restaurants</code>, <code>Food</code> y
+<code>Nightlife</code>, y asigna a cada negocio la primera etiqueta restante. Por eso,
+<code>fact_review[category]</code> es una etiqueta Yelp asociada al negocio seleccionado,
+no una clasificación garantizada de cocina o tipo de restaurante. Las consultas
+por categoría deben describirse como análisis por etiqueta Yelp. Las categorías
+de menor volumen requieren cautela adicional.</p>
+<h3 id="expresiones-dax-y-explicacion">Expresiones DAX y explicación</h3>
+<p>Las siguientes expresiones implementan las respuestas de la matriz. En las
+consultas segmentadas, el mismo cálculo se vuelve a evaluar por cada fila,
+columna, filtro o eje del visual.</p>
+<p><strong>Consulta 1 — total de reseñas</strong></p>
+<pre><code class="language-DAX">Total Reseñas =
+COUNT(fact_review[stars])
+</code></pre>
+<p>Cuenta las calificaciones no vacías; la tarjeta o los filtros determinan el
+período, ciudad o categoría que se está consultando.</p>
+<p><strong>Consulta 2 — calificación media</strong></p>
+<pre><code class="language-DAX">Calificación Promedio =
+AVERAGE(fact_review[stars])
+</code></pre>
+<p>Calcula el promedio de estrellas en el contexto. Al agrupar por restaurante o
+ciudad responde esos análisis; al poner <code>price_range</code> en el eje y la medida en
+valores muestra la relación entre rango de precio y satisfacción.</p>
+<p><strong>Consulta 3 — votos útiles</strong></p>
+<pre><code class="language-DAX">Votos Útiles Totales =
+SUM(fact_review[useful])
+</code></pre>
+<p>Suma los votos útiles. Es una medida de interacción con las reseñas, no una
+medida directa de satisfacción.</p>
+<p><strong>Consulta 4 — porcentaje de reseñas positivas</strong></p>
+<pre><code class="language-DAX">% Reseñas Positivas =
+DIVIDE(
+    CALCULATE(
+        [Total Reseñas],
+        fact_review[sentiment_label] = &quot;Positive&quot;
+    ),
+    [Total Reseñas],
+    0
+)
+</code></pre>
+<p><code>CALCULATE</code> aplica el filtro de sentimiento positivo dentro del contexto
+seleccionado; <code>DIVIDE</code> obtiene la proporción respecto al total y evita error si
+el denominador es cero. Se presenta como KPI.</p>
+<p><strong>Consulta 5 — segmentación temporal</strong></p>
+<p>La expresión es <code>[Calificación Promedio]</code> de la consulta 2, evaluada con los
+campos <code>dim_date[year]</code>, <code>dim_date[quarter]</code>, <code>dim_date[month_number]</code> o
+<code>dim_date[date]</code>. El campo de fecha cambia el contexto temporal; no requiere
+inventar una medida distinta para cada nivel.</p>
+<p><strong>Consulta 6 — calificación MTD</strong></p>
+<pre><code class="language-DAX">Calificación MTD =
+CALCULATE(
+    [Calificación Promedio],
+    DATESMTD(dim_date[date])
+)
+</code></pre>
+<p>Calcula el promedio desde el inicio del mes hasta la fecha del contexto
+seleccionado. En un visual agrupado por mes completo, el valor puede coincidir
+con el promedio mensual.</p>
+<p><strong>Consulta 7 — calificación YTD y cambio interanual</strong></p>
+<pre><code class="language-DAX">Calificación YTD =
+CALCULATE(
+    [Calificación Promedio],
+    DATESYTD(dim_date[date])
+)
+</code></pre>
+<pre><code class="language-DAX">Cambio Interanual de Calificación =
+VAR CalificaciónActual = [Calificación Promedio]
+VAR CalificaciónAnterior =
+    CALCULATE(
+        [Calificación Promedio],
+        SAMEPERIODLASTYEAR(dim_date[date])
+    )
+RETURN
+    IF(
+        ISBLANK(CalificaciónActual) || ISBLANK(CalificaciónAnterior),
+        BLANK(),
+        CalificaciónActual - CalificaciónAnterior
+    )
+</code></pre>
+<p>YTD calcula el promedio acumulado del año. El cambio interanual compara el
+período actual con el mismo período del año anterior y se expresa en puntos de
+calificación; <code>VAR</code> guarda ambos valores y <code>RETURN</code> devuelve la diferencia.
+Devuelve vacío si falta alguno de los períodos comparados.</p>
+<p><strong>Consulta 8 — ranking por volumen de reseñas</strong></p>
+<pre><code class="language-DAX">Ranking por Reseñas =
+RANKX(
+    ALL(dim_business),
+    [Total Reseñas],
+    [Total Reseñas],
+    DESC,
+    DENSE
+)
+</code></pre>
+<p>Compara el total de reseñas de cada negocio contra los demás negocios. No es el
+ranking de restaurantes mejor calificados; ese Top 10 se calcula por promedio
+de estrellas entre negocios con al menos 100 reseñas y usa volumen e ID como
+desempates. El umbral reduce el riesgo de que restaurantes con pocas reseñas y
+una calificación perfecta dominen el resultado.</p>
+<p><strong>Consulta 9 — reseñas con términos de queja</strong></p>
+<pre><code class="language-DAX">Reseñas con Quejas =
+COUNTROWS(
+    FILTER(
+        fact_review,
+        SEARCH(&quot;bad&quot;, LOWER(fact_review[complaint_terms]), 1, 0) &gt; 0
+            || SEARCH(&quot;slow&quot;, LOWER(fact_review[complaint_terms]), 1, 0) &gt; 0
+            || SEARCH(&quot;cold&quot;, LOWER(fact_review[complaint_terms]), 1, 0) &gt; 0
+            || SEARCH(&quot;rude&quot;, LOWER(fact_review[complaint_terms]), 1, 0) &gt; 0
+            || SEARCH(&quot;dirty&quot;, LOWER(fact_review[complaint_terms]), 1, 0) &gt; 0
+    )
+)
+</code></pre>
+<p>Busca los términos definidos en cada reseña y cuenta cada fila una sola vez,
+aunque contenga varios términos.</p>
+<p><strong>Consulta 10 — dispersión de calificaciones</strong></p>
+<pre><code class="language-DAX">Desviación de Calificaciones =
+STDEV.P(fact_review[stars])
+</code></pre>
+<p>Mide la dispersión poblacional de las estrellas en el contexto actual; se
+interpreta junto con el promedio, no como una calificación de satisfacción por
+sí sola.</p>
+<p><code>dim_date</code> aporta año, trimestre, mes, fecha/día y día de semana para la
+segmentación. En el PBIX se confirmó la relación activa entre fecha y reseña y
+que <code>dim_date</code> está marcada como tabla de fechas. La página temporal tiene en
+el eje X los niveles <code>year</code>, <code>quarter</code>, <code>month_number</code> y <code>date</code>; se dejó
+resumida al nivel mensual para conservar la lectura del gráfico. También se
+comprobó el nivel diario al desplegar la jerarquía. La tabla muestra
+YTD/cambio interanual.</p>
+<p><code>Votos Útiles Totales</code> es un indicador complementario del uso de las reseñas,
+no una medida directa de satisfacción. <code>Ranking por Reseñas</code> clasifica por
+volumen y no significa que el restaurante sea el mejor calificado. El
+requisito del proyecto 7 de Top 10 mejor calificados se atiende por separado:
+la definición de referencia de la medida auxiliar <code>Es Top 10 Restaurante</code>
+considera solo negocios con al menos 100 reseñas, selecciona por calificación
+promedio y desempata por total de reseñas e ID. La medida se actualizó en el
+PBIX; la tabla resultante muestra diez negocios y todos tienen al menos 100
+reseñas (el menor conteo observado es 101).</p>
+<p><code>% Reseñas Positivas</code> se utiliza como KPI de satisfacción. El enunciado no
+define límites para clasificar el promedio como "Excelente", "Aceptable" o
+"Por mejorar"; por eso esos umbrales no se presentan como criterios del
+docente. <code>dax_measures.dax</code> incluye <code>Es Top 10 Restaurante</code> como medida auxiliar
+para seleccionar diez negocios con al menos 100 reseñas por promedio de
+calificación, con total de reseñas e ID como desempates. Es apoyo al requisito
+propio del Proyecto 7 de Top 10 mejor calificados; no es una consulta analítica
+adicional. <code>Ranking por Reseñas</code>, en cambio, ordena por volumen y no debe
+interpretarse como ranking de satisfacción.</p>
+<p><strong>Estado de auditoría DAX:</strong> las diez expresiones de referencia fueron
+inspeccionadas en Power BI y las fórmulas revisadas fueron aceptadas por el
+modelo. Se verificaron la relación activa con <code>dim_date</code> y el marcado de esa
+dimensión como tabla de fechas; también se colocaron las medidas MTD, YTD e
+interanual en la página temporal. Las diez consultas tabulares de
+<code>dax_queries.dax</code> se ejecutaron individualmente en la Vista de consultas DAX y
+devolvieron el estado «Correcto». Los resultados mostraron, respectivamente,
+848, 5, 445, 445, 6.018, 31, 204, 10, 420 y 445 filas. La consulta 5 mostró
+año, trimestre, mes y fecha; la jerarquía temporal de los visuales se comprobó
+por separado en el PBIX. Conserva las capturas como evidencia. La frecuencia
+de palabras se calcula
+en el ETL, no mediante DAX: cumple el análisis específico de palabras del
+Proyecto 7, pero no se cuenta como una de las diez consultas DAX generales.</p>
+<p>En la consulta 4, varias categorías que aparecen al inicio tienen un 100 % de
+reseñas positivas con solo 7–39 reseñas; no deben presentarse como las
+categorías más satisfechas sin considerar ese tamaño muestral. En la consulta
+7, el cambio interanual aparece vacío para períodos sin datos comparables del
+año anterior. La consulta 8 clasifica por volumen de reseñas, no por
+calificación. La consulta 9 cuenta una reseña una sola vez si contiene al
+menos uno de los términos de queja.</p>
+<p>Las consultas 3, 4, 9 y 10 agrupan por la etiqueta descrita arriba. En los
+resultados aparecen etiquetas secundarias como <code>Photographers</code>, <code>Pet Training</code>
+y <code>Roofing</code>; por tanto, no se deben interpretar como categorías gastronómicas.
+La consulta 10, por ejemplo, muestra alta dispersión para algunas de esas
+etiquetas, no necesariamente para tipos de cocina.</p>
+<p>El requisito 3 (palabras clave) se resuelve en el ETL sobre <code>review_text</code> y se
+visualiza en Power BI con una tabla o nube de palabras. El requisito 6
+(precio-satisfacción) se resuelve colocando <code>price_range</code> en el eje y
+<code>Calificación Promedio</code> en valores. Así no se agregan medidas innecesariamente
+complicadas para análisis que Power BI ya resuelve con el contexto del visual.</p>
+<p>El requisito 8 se visualiza con <code>complaint_term_counts</code>, que cuenta por
+separado cada término (<code>bad</code>, <code>slow</code>, <code>cold</code>, <code>rude</code>, <code>dirty</code>). Una reseña
+puede contener más de un término y, por tanto, contribuir al conteo de varios;
+estos conteos no representan reseñas únicas sumables entre sí. No usar la
+columna <code>complaint_terms</code> como categoría, porque agrupa términos de una misma
+reseña en valores como <code>bad, cold</code>.</p>
+<p>El requisito 10 se segmenta por cuartiles de <code>review_count</code>, calculados sobre
+los perfiles incluidos en el dataset. En la muestra actual, los cortes son 3,
+7 y 20 reseñas: Q1 (0-3), Q2 (4-7), Q3 (8-20) y Q4 (más de 20). Se comparan
+las estrellas promedio y los fans por grupo; los cuartiles describen actividad,
+no etiquetas oficiales del ejercicio.</p>
+<h3 id="resultados-observados-de-las-consultas-tabulares">Resultados observados de las consultas tabulares</h3>
+<p>Las siguientes cifras se transcribieron de las salidas visibles de Power BI.
+Las consultas devolvieron «Correcto»; las categorías están sujetas a la
+limitación semántica de la etiqueta Yelp explicada arriba.</p>
+<table>
+<thead>
+<tr>
+<th>Consulta</th>
+<th>Resultado observado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>848 ciudades. Philadelphia aparece primero con 687.553 reseñas; New Orleans con 476.565; Nashville con 325.775.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cinco filas: sin precio 176.385 reseñas (promedio 3,94); rango 1, 967.113 (3,65); rango 2, 3.248.279 (3,81); rango 3, 296.626 (3,94); rango 4, 36.068 (4,15). El rango 4 tiene el promedio observado más alto, no una relación causal.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>445 etiquetas. Votos útiles más altos visibles: American (New), 265.793; Bars, 256.257; American (Traditional), 234.636.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>445 etiquetas. Las primeras filas mostraron 100 % positivo con bases pequeñas: Sporting Goods, 19; Buddhist Temples, 8; Health Retreats, 12; Somali, 8. No interpretarlo como un ranking fiable de satisfacción.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>6.018 filas con año, trimestre, número de mes, fecha y promedio diario.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>31 fechas recientes con promedio MTD; el 19 de enero de 2022 muestra 3,83.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>204 combinaciones año-mes; los cambios interanuales aparecen vacíos cuando no hay período comparable.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Top 10 por volumen (no por satisfacción). Primeros: Acme Oyster House, 7.673; Oceana Grill, 7.516; Hattie B's Hot Chicken, 6.160; Reading Terminal Market, 5.778.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>420 etiquetas con reseñas que contienen términos de queja. Primeros conteos: American (Traditional), 43.185; Bars, 40.922; American (New), 36.690. Cada reseña cuenta una vez por grupo; los conteos de etiquetas no son sumables como reseñas únicas.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>445 etiquetas. Mayor desviación visible: Pet Training, 1,98; Cosmetic Surgeons, 1,90; Roofing, 1,86. Son etiquetas secundarias con muestras pequeñas; la consulta no incluye el tamaño muestral junto a la desviación.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Reconciliación de ciudades:</strong> la consulta 1 del PBIX devuelve 848 grupos y
+687.553 reseñas para Philadelphia. La agrupación literal de los nombres en
+Python produce más grupos porque trata como distintos algunos valores que solo
+varían en mayúsculas o espacios. Al aplicar <code>strip().casefold()</code> a <code>city</code>, la
+agregación de los CSV reproduce exactamente los 848 grupos y el total de
+687.553 para Philadelphia; el total general es 4.724.471. Por tanto, la
+diferencia observada inicialmente era de normalización de texto, no de filas
+faltantes ni de una desactualización del PBIX. El dashboard HTML aplica el
+mismo criterio para mantener resultados comparables.</p>
+<h2 id="5-anova">5. ANOVA</h2>
+<p>La variable dependiente es <code>stars</code> (calificación de 1 a 5); el factor es la
+etiqueta Yelp <code>category</code> descrita arriba, no necesariamente una categoría de
+cocina. H0: las medias de calificación son iguales. H1: al menos una media es
+diferente. Se verifican Shapiro-Wilk por grupo y Levene para homogeneidad de
+varianzas en <code>anova_assumptions_and_result.csv</code>. Como Levene detecta varianzas
+desiguales, se usa Welch ANOVA como prueba principal; el ANOVA clásico se
+conserva como referencia. Si <code>p &lt; 0.05</code>, se rechaza H0.</p>
+<h3 id="resultados-observados">Resultados observados</h3>
+<p>El análisis compara cinco etiquetas Yelp y 1.210.971 reseñas. Levene dio
+<code>W = 531,05</code>, <code>p &lt; 0,001</code>, por lo que no se cumple la igualdad de varianzas.
+El ANOVA de una vía dio <code>F(4; 1.210.966) = 966,33</code>, <code>p &lt; 0,001</code>: hay evidencia
+de que no todas las medias son iguales. Los valores <code>0.0</code> de p guardados en los
+CSV son un límite de precisión numérica, no una probabilidad exactamente cero;
+por eso se reportan como <code>p &lt; 0,001</code>.</p>
+<p>Welch ANOVA, que no requiere igualdad de varianzas, dio
+<code>F(4; 594.272,81) = 976,19</code>, <code>p &lt; 0,001</code>. Por tanto, también con esta prueba
+robusta se rechaza H0: hay evidencia de diferencias entre las calificaciones
+medias de al menos dos etiquetas. Este resultado no identifica por sí solo qué
+pares difieren.</p>
+<p>El visual de Power BI presenta las medias observadas: Breakfast &amp; Brunch 3,88;
+American (New) 3,84; Bars 3,74; Mexican 3,73; y American (Traditional) 3,66.
+Son medias de las cinco etiquetas seleccionadas por volumen de observaciones,
+no una evaluación de todos los restaurantes ni evidencia causal.</p>
+<p>Shapiro-Wilk también resultó significativo en las cinco categorías
+(<code>p &lt; 0,001</code>). El ETL aplica esta prueba a los primeros 5.000 valores de cada
+grupo; la columna <code>n</code> del CSV indica el tamaño total del grupo, no el tamaño
+usado por Shapiro-Wilk.</p>
+<p>En las diez comparaciones de Tukey, nueve resultaron significativas. La única
+excepción fue <code>Bars</code> frente a <code>Mexican</code> (<code>p ajustado = 0,2225</code>). Como las
+varianzas son desiguales, Tukey no se usa para conclusiones confirmatorias; esos
+pares se conservan únicamente como evidencia exploratoria. No implican
+causalidad ni, por sí solos, recomendaciones sobre la calidad de un restaurante.</p>
+<h2 id="6-conclusiones">6. Conclusiones</h2>
+<p>Welch ANOVA permite rechazar la hipótesis de igualdad de medias entre las cinco
+etiquetas Yelp analizadas sin asumir varianzas iguales. Shapiro-Wilk también resulta
+significativo en los grupos; las calificaciones son discretas y el tamaño de
+muestra es muy grande, así que las pruebas de normalidad deben interpretarse con
+cautela. Se reporta evidencia de asociación entre categoría y calificación, no
+causalidad ni una evaluación definitiva de la calidad. Las conclusiones
+descriptivas del dashboard deben limitarse a los filtros, categorías y períodos
+que muestra cada visual. El refresco reciente del PBIX terminó correctamente,
+la consulta de ciudades coincide con la agregación normalizada de los CSV, la
+jerarquía temporal quedó verificada y el Top 10 aplica el mínimo de 100 reseñas.
+Las cinco páginas revisadas muestran los diez análisis propios del Proyecto 7.
+El PBIX final fue guardado y sustituido en la Release <code>v1.0.0</code>; el tamaño y el
+SHA-256 del archivo publicado coinciden con el PBIX local.</p></body></html>

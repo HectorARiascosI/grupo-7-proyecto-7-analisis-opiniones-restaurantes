@@ -19,10 +19,18 @@ Yelp y las autorizaciones aplicables.
   Power BI.
 - `dax_measures.dax`: expresiones DAX utilizadas para responder las consultas
   analíticas documentadas en `report.md`.
-- `dax_queries.dax`: diez consultas tabulares `EVALUATE` para ejecutar por
+- `dax_queries.dax`: diez consultas tabulares `EVALUATE`, ejecutadas por
   separado en la Vista de consultas DAX de Power BI.
+- `dax_guide.md` y `deliverables\guia_dax.pdf`: guía ordenada para estudiar y
+  explicar las medidas y las diez consultas, una por una.
 - `report.md` y `presentation.md`: fuente del informe técnico y guion oral.
 - Informe Power BI [`Grupo7_Ejercicio7_Yelp.pbix`](https://github.com/HectorARiascosI/grupo-7-proyecto-7-analisis-opiniones-restaurantes/releases/latest/download/Grupo7_Ejercicio7_Yelp.pbix), disponible como archivo descargable en la sección Releases.
+- `deliverables\report.docx` y `deliverables\report.pdf`: informe técnico final.
+- `deliverables\guia_dax.pdf`: guía de estudio de DAX.
+- `deliverables\presentation.pptx`: presentación para la exposición.
+- `deliverables\dashboard.html`: dashboard estático local con agregados; no reemplaza el PBIX ni es una publicación en Power BI Service.
+- `deliverables\report.html`: versión HTML del informe.
+- `build_final_deliverables.py`: genera esos cinco archivos desde el informe y las tablas compactas locales.
 - `data/processed/anova_assumptions_and_result.csv` y
   `data/processed/anova_tukey_posthoc.csv`: resultados estadísticos pequeños
   para auditar el ANOVA.
@@ -68,6 +76,24 @@ de Git LFS.
    python etl_pipeline.py --raw-dir data\raw --output-dir data\processed --max-reviews 100000
    ```
 
+4. Generar los documentos finales y el dashboard HTML:
+
+   ```powershell
+   python prepare_powerbi.py --source-dir data\processed --output-dir data\processed\powerbi
+   python build_final_deliverables.py
+   ```
+
+   El generador procesa las reseñas por bloques, no incorpora textos de reseñas
+   ni perfiles individuales al HTML, y crea `report.docx`, `report.pdf`,
+   `report.html`, `guia_dax.pdf`, `presentation.pptx` y `dashboard.html` dentro
+   de `deliverables\`.
+
+   La comparación por ciudad usa normalización de espacios y mayúsculas para
+   que la agregación local y Power BI produzcan los mismos grupos. La consulta 1
+   verificada muestra 848 ciudades y 687.553 reseñas para Philadelphia; el total
+   es 4.724.471. Guarda el PBIX después del refresco y conserva la normalización
+   descrita en `report.md` al recalcular el dashboard.
+
 ## Salidas
 
 - `dim_business.csv`: restaurante, ciudad, estado, ubicación, precio y estado.
@@ -86,6 +112,9 @@ de Git LFS.
 2. **Transform**: selección explícita de negocios cuya categoría contiene
    `Restaurants`, normalización de fechas, extracción de `price_range`,
    eliminación de duplicados dimensionales y cálculo de sentimiento VADER.
+   El campo `category` de `fact_review` conserva la primera etiqueta de Yelp
+   no genérica de cada negocio seleccionado; no necesariamente representa su
+   tipo de cocina.
 3. **Load**: carga en un esquema estrella en CSV para Power BI.
 4. **Control**: el pipeline falla de forma explícita ante archivos ausentes,
    JSON inválido o ausencia de reseñas; no reemplaza datos faltantes con
@@ -93,10 +122,12 @@ de Git LFS.
 
 ## ANOVA
 
-La pregunta es si la calificación media difiere entre las cinco categorías de
-restaurantes con más observaciones (mínimo 30 por grupo). H0: todas las medias
-son iguales. H1: al menos una media es diferente. Se reportan Shapiro-Wilk por
-grupo, Levene para homogeneidad, ANOVA de una vía y Welch ANOVA. Como Levene
+La pregunta es si la calificación media difiere entre las cinco etiquetas Yelp
+no genéricas con más observaciones asociadas a negocios seleccionados como
+restaurantes (mínimo 30 por grupo). No necesariamente son tipos de cocina.
+H0: todas las medias son iguales. H1: al menos una media es diferente. Se
+reportan Shapiro-Wilk por grupo, Levene para homogeneidad, ANOVA de una vía y
+Welch ANOVA. Como Levene
 detecta varianzas desiguales, Welch es la prueba principal; el ANOVA clásico y
 Tukey se conservan como comparación exploratoria. Con `p < 0.05` se rechaza H0.
 La muestra, grupos, tamaños y p-valores quedan guardados en los CSV para
@@ -130,7 +161,10 @@ El ETL genera `dim_date` con todos los días entre la primera y la última
 reseña, incluidos los días sin actividad, para que Power BI pueda marcarla
 como tabla de fechas y calcular inteligencia temporal.
 
-Usar `category` de `fact_review` para los análisis por categoría. La tabla
+Usar `category` de `fact_review` para analizar las etiquetas Yelp asignadas a
+los negocios seleccionados como restaurantes. No interpretar automáticamente
+cada etiqueta como una cocina o tipo de restaurante: pueden aparecer etiquetas
+secundarias como `Pet Training` o `Roofing`. La tabla
 `review_keyword_counts` no necesita relación: se visualiza directamente como
 palabra y frecuencia. La tabla `complaint_term_counts` tampoco necesita
 relación: contiene una fila por término y su número de reseñas; una reseña
@@ -144,15 +178,17 @@ del visual/filtros y una interpretación. Las medidas son una forma de
 implementar esos cálculos, pero una medida aislada no reemplaza la pregunta ni
 la respuesta. La consigna enumera técnicas de medidas y funciones DAX; no
 exige explícitamente consultas tabulares `EVALUATE`. Como evidencia adicional,
-`dax_queries.dax` contiene diez bloques para ejecutar por separado en la Vista
-de consultas DAX de Power BI. El archivo por sí solo no prueba su ejecución:
-se deben revisar y guardar los resultados. Crear las medidas una por una con
+`dax_queries.dax` contiene diez bloques que se ejecutaron por separado en la
+Vista de consultas DAX de Power BI; los resultados y sus limitaciones se
+documentan en `report.md`. Conserva las capturas de ejecución como evidencia
+de entrega. Crear las medidas una por una con
 **Modelado > Nueva medida** y documentar las diez preguntas en el informe.
 Para demostrar la segmentación temporal, usar los
 campos de año, trimestre, mes y fecha/día de `dim_date`; verificar que el PBIX
-final muestre esos niveles, no solo que existan en la tabla. La medida auxiliar
-`Es Top 10 Restaurante` del PBIX selecciona el Top 10 mejor calificado con
-desempates; no cuenta entre las diez consultas DAX principales.
+final muestre esos niveles, no solo que existan en la tabla. La definición de referencia de `Es Top 10 Restaurante` en `dax_measures.dax`
+selecciona los diez negocios mejor calificados entre los que tienen al menos
+100 reseñas, con desempates; no cuenta entre las diez consultas DAX principales.
+La medida quedó aplicada en el PBIX y la tabla se verificó con ese umbral.
 
 Páginas recomendadas: resumen ejecutivo, restaurantes/ciudades, sentimiento y
 texto, tendencia temporal, y ANOVA. El archivo `.pbix` debe guardarse desde

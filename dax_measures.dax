@@ -66,3 +66,32 @@ COUNTROWS(
 
 Desviación de Calificaciones =
 STDEV.P(fact_review[stars])
+
+Es Top 10 Restaurante =
+VAR NegociosElegibles =
+    FILTER(
+        ALL(dim_business),
+        [Total Reseñas] >= 100
+    )
+VAR TopNegocios =
+    TOPN(
+        10,
+        NegociosElegibles,
+        [Calificación Promedio], DESC,
+        [Total Reseñas], DESC,
+        dim_business[business_id], ASC
+    )
+VAR NegocioActual = SELECTEDVALUE(dim_business[business_id])
+RETURN
+    IF(
+        ISBLANK(NegocioActual),
+        0,
+        IF(
+            CONTAINS(
+                TopNegocios,
+                dim_business[business_id], NegocioActual
+            ),
+            1,
+            0
+        )
+    )
